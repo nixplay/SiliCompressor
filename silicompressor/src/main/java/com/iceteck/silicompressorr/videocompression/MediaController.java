@@ -113,7 +113,7 @@ public class MediaController {
                         th.start();
                         th.join();
                     } catch (Exception e) {
-                        Log.e("tmessages", e.getMessage());
+                        Log.e("tmessages", e.getMessage(), e);
                     }
                 }
             }).start();
@@ -238,15 +238,9 @@ public void scheduleVideoConvert(String path, File dest) {
         return -5;
     }
 
-    /**
-     * Perform the actual video compression. Processes the frames and does the magic
-     * @param sourcePath the source uri for the file as per
-     * @param destDir the destination directory where compressed video is eventually saved
-     * @return
-     */
     @TargetApi(16)
-    public boolean  convertVideo(final String sourcePath, File destDir) {
-        this.path=sourcePath;
+    public boolean convertVideo(final VideoCompressConfig config) {
+        this.path=config.inDest;
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(path);
@@ -257,17 +251,17 @@ public void scheduleVideoConvert(String path, File dest) {
         long startTime = -1;
         long endTime = -1;
 
-        int resultWidth = 640;
-        int resultHeight = 360;
+        int resultWidth = config.outWidth;
+        int resultHeight = config.outHeight;
 
         int rotationValue = Integer.valueOf(rotation);
         int originalWidth = Integer.valueOf(width);
         int originalHeight = Integer.valueOf(height);
 
-        int bitrate = 450000;
+        int bitrate = config.bitrate;
         int rotateRender = 0;
 
-        File cacheFile = new File(destDir,
+        File cacheFile = new File(config.outDest,
                 "VIDEO_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".mp4"
         );
 
@@ -592,7 +586,7 @@ public void scheduleVideoConvert(String path, File dest) {
                                                     outputSurface.awaitNewImage();
                                                 } catch (Exception e) {
                                                     errorWait = true;
-                                                    Log.e("tmessages", e.getMessage());
+                                                    Log.e("tmessages", e.getMessage(), e);
                                                 }
                                                 if (!errorWait) {
                                                     if (Build.VERSION.SDK_INT >= 18) {
@@ -634,7 +628,7 @@ public void scheduleVideoConvert(String path, File dest) {
                                 videoStartTime = videoTime;
                             }
                         } catch (Exception e) {
-                            Log.e("tmessages", e.getMessage());
+                            Log.e("tmessages", e.getMessage(), e);
                             error = true;
                         }
 
@@ -666,7 +660,7 @@ public void scheduleVideoConvert(String path, File dest) {
                 }
             } catch (Exception e) {
                 error = true;
-                Log.e("tmessages", e.getMessage());
+                Log.e("tmessages", e.getMessage(), e);
             } finally {
                 if (extractor != null) {
                     extractor.release();
@@ -675,7 +669,7 @@ public void scheduleVideoConvert(String path, File dest) {
                     try {
                         mediaMuxer.finishMovie(false);
                     } catch (Exception e) {
-                        Log.e("tmessages", e.getMessage());
+                        Log.e("tmessages", e.getMessage(), e);
                     }
                 }
                 Log.e("tmessages", "time = " + (System.currentTimeMillis() - time));
@@ -726,7 +720,7 @@ public void scheduleVideoConvert(String path, File dest) {
         }
 */
 
-    //    cacheFile.delete();
+        //    cacheFile.delete();
 
        /* try {
            // copyFile(cacheFile,inputFile);
@@ -735,9 +729,21 @@ public void scheduleVideoConvert(String path, File dest) {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
-         // cacheFile.delete();
-       // inputFile.delete();
+        // cacheFile.delete();
+        // inputFile.delete();
         return true;
+    }
+
+    /**
+     * @deprecated
+     * Perform the actual video compression. Processes the frames and does the magic
+     * @param sourcePath the source uri for the file as per
+     * @param destDir the destination directory where compressed video is eventually saved
+     * @return
+     */
+    @TargetApi(16)
+    public boolean  convertVideo(final String sourcePath, File destDir) {
+        return convertVideo(VideoCompressConfig.newConfig(360, 640, sourcePath, destDir.getAbsolutePath()));
     }
 
     public static void copyFile(File src, File dst) throws IOException
