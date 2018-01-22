@@ -328,7 +328,9 @@ public class SiliCompressor {
      * @return The Path of the compressed video file
      */
     public String compressVideo(Uri videoFileUri, String destinationDir, int outWidth, int outHeight, int bitrate) throws URISyntaxException {
-        boolean isconverted = MediaController.getInstance().convertVideo(Util.getFilePath(mContext, videoFileUri), new File(destinationDir), outWidth, outHeight, bitrate);
+        VideoCompressConfig config = VideoCompressConfig.newConfig(outWidth, outHeight, bitrate, Util.getFilePath(mContext, videoFileUri), new File(destinationDir).toString());
+
+        boolean isconverted = MediaController.getInstance().convertVideo(config);
         if (isconverted){
             Log.v(LOG_TAG, "Video Conversion Complete");
         }else{
@@ -367,7 +369,8 @@ public class SiliCompressor {
      * @return The Path of the compressed video file
      */
     public String compressVideo(String videoFilePath, String destinationDir, int outWidth, int outHeight, int bitrate) throws URISyntaxException {
-        boolean isconverted = MediaController.getInstance().convertVideo( videoFilePath, new File(destinationDir), outWidth, outHeight, bitrate);
+        VideoCompressConfig config = VideoCompressConfig.newConfig( outWidth, outHeight, bitrate, videoFilePath, new File(destinationDir).toString());
+        boolean isconverted = MediaController.getInstance().convertVideo( config );
         if (isconverted){
             Log.v(LOG_TAG, "Video Conversion Complete");
         }else{
