@@ -13,9 +13,11 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.iceteck.silicompressorr.videocompression.MediaController;
+import com.iceteck.silicompressorr.videocompression.VideoCompressConfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -334,7 +336,22 @@ public class SiliCompressor {
         }
 
         return MediaController.cachedFile.getPath();
+    }
 
+    /**
+     *
+     * @param config
+     * @return
+     */
+    public String compressVideo(@NonNull final VideoCompressConfig config) {
+        boolean isconverted = MediaController.getInstance().convertVideo(config);
+        if (isconverted){
+            Log.v(LOG_TAG, "Video Conversion Complete");
+        }else{
+            Log.v(LOG_TAG, "Video conversion in progress");
+        }
+
+        return MediaController.cachedFile.getPath();
     }
 
 
